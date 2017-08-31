@@ -1,5 +1,7 @@
 PROGRAM ROTMOL
 
+!Programa para protação de moléculas em torno da origem
+
     implicit none
     integer :: i, j, k, natoms, nop
     logical :: dbg = .false.
@@ -10,25 +12,33 @@ PROGRAM ROTMOL
     real*8, allocatable :: R(:,:), XYZ(:,:), NEWXYZ(:,:)
     real*8, allocatable :: phi(:), theta(:), gama(:)
     
-    
+        
+    !---------------LEITURA DO INPUT--------------------------!
+
     print *, "Lendo arquivo..."
-    
-    ! Ler arquivo "input"
-    
     call readInput()
     
+    
+    !--------------ABRINDO ARQUIVOS DE ESCRITA----------------!
+    
     print *, "Abrindo arquivos para escrita..."
-    !abrir "output.xyz"
     open(unit=2, file="output.xyz") 
+    
+    !---------------------DEBUG-------------------------------!
+    
     if(dbg) then
         open(unit=99, file="log")
         call writeParam()
     end if
-    
-    call writeOut(XYZ,atom,NATOMS,0,0,0.d0,0.d0,0.d0)
+
+    !----------------PROGRAMA PRINCIPAL-----------------------!
     
     print *, "Iniciando operações!"
     print *, "---------------------------------"
+    
+    call writeOut(XYZ,atom,NATOMS,0,0,0.d0,0.d0,0.d0)
+    
+    
     do i=1,nop
         R = RMAT(phi(i),theta(i),gama(i))
         
@@ -39,39 +49,62 @@ PROGRAM ROTMOL
             XYZ = NEWXYZ
             call writeOut(XYZ,atom,NATOMS,i,j,phi(i),theta(i),gama(i))
             if(dbg) then
-               ! read(*,*)
                 print "(A4, I3, A7, I3, A6, 3F9.4)", "Op: ", i, " step: ", j, " rot: ", phi(i),theta(i),gama(i)
             end if
         end do
     end do
     
     
+    !---------------------DEBUG-------------------------------!
+    
+    if(dbg) then
+        print *, "----------matrix de rotacao---------"
+    
+        do i=1,3
+            print "(3F9.5)", (R(i,j), j=1,3)
+        end do
+    
+        print *, "--------posicoes iniciais--------------"
+    
+        do i=1,natoms
+            print "(3F9.5)", (XYZ(i,j), j=1,3)
+        end do
+    
+    
+        print *, "------novas posicoes----------------"
+    
+        do i=1,natoms
+            print "(3F9.5)", (NEWXYZ(i,j), j=1,3)
+        end do
+    
+        end if
     
     
     
-    print *, "----------matrix de rotacao---------"
+    !----------------------FIM--------------------------------!
     
-    do i=1,3
-        print "(3F9.5)", (R(i,j), j=1,3)
-    end do
+    print *, "ROTAÇÃO FINALIZADA!"
     
-    print *, "--------posicoes iniciais--------------"
-    
-    do i=1,natoms
-        print "(3F9.5)", (XYZ(i,j), j=1,3)
-    end do
-    
-    
-    print *, "------novas posicoes----------------"
-    
-    do i=1,natoms
-        print "(3F9.5)", (NEWXYZ(i,j), j=1,3)
-    end do
+    !----------------FECHANDO ARQUIVOS------------------------!
     
     close(2)
     close(99)
 
     contains
+!
+!   FUNÇÕES:
+!   
+!   => RMAT: GERA A MATRIZ DE ROTAÇÃO TOTAL: RMAT = Rx * Ry * Rz
+!   => MULTMAT: REALIZA UMA MULTIPLICAÇÃO DE MATRIZES 3X3
+!   => MULTVEC: REALIZA UMA MULTIPLICAÇÃO DE VETOR * MATRIZ 3X3
+!
+!   SUBROTINAS:
+!
+!   => readInput: Faz a leitura do arquivo input
+!   => writeParam: Escreve os parametros gerais no arquivo log (DEBUG)
+!   => writeOut: Escreve output no formato xyz (avogadro)!
+!
+
 
 
 real*8 function RMAT(phi,theta,gama)
