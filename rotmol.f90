@@ -1,6 +1,6 @@
 PROGRAM ROTMOL
 
-!Programa para rrotação de moléculas em torno da origem
+!Programa para rotação de moléculas em torno da origem
 
     implicit none
     integer :: i, j, k, natoms, nop
