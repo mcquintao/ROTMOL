@@ -49,7 +49,7 @@ PROGRAM ROTMOL
             XYZ = NEWXYZ
             call writeOut(XYZ,atom,NATOMS,i,j,phi(i),theta(i),gama(i))
             if(dbg) then
-                print "(A4, I3, A7, I3, A6, 3F9.4)", "Op: ", i, " step: ", j, " rot: ", phi(i),theta(i),gama(i)
+                print "(A4, I3, A7, I3, A12, 3F9.4)", "Op: ", i, " step: ", j, " rot (rad): ", phi(i),theta(i),gama(i)
             end if
         end do
     end do
@@ -196,7 +196,7 @@ subroutine readInput()
         theta(i) = theta(i)*pi/180
         gama(i) = gama(i)*pi/180
     end do
-    
+    read(1,*)    
     do i=1,natoms
         read(1,*) atom(i), (XYZ(i,j), j=1,3)
     end do
